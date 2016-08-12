@@ -76,23 +76,19 @@ fi
 
 # Check for the innobackupex command
 # If it's not there, we are missing the xtrabackup package
-innobex=`which innobackupex`
+which innobackupex > /dev/null 2>&1
 if [ $? -ne 0 ]; then 
-  while true; do
-    read -p "Do you want me to install xtrabackup_package" yn
-    case $yn in
-        [Yy]* ) 
-  	  apt-get install ${xtrabackup_package} -y --allow-unauthenticated
-          break;;
-        [Nn]* ) exit;;
-        * ) echo "Please answer yes or no.";;
-    esac
-  done
+  apt-get install ${xtrabackup_package} -y --allow-unauthenticated
+
+  which innobackupex > /dev/null 2>&1
+  if [ $? -ne 0 ]; then 
+    echo "Installation of innobackupex from package $xtrabackup_package} failed."
+    exit 1
+  fi 
 
   innobex=`which innobackupex`
 fi
 
-cat=`which cat`
 
 # Check if dialog is installed and install it if not
 dia=`which dialog`
