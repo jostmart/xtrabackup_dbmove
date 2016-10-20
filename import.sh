@@ -49,6 +49,18 @@ xtrabackup_package="percona-xtrabackup"
 # End of configurables                             #
 ####################################################
 
+which dialog > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo "Installing package dialog"
+  apt-get install dialog -y
+
+  which dialog > /dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    echo "Installation of dialog failed. Please investigate"
+    exit 1
+  fi
+fi
+
 
 # Check for the mysqlfrm command
 which mysqlfrm > /dev/null 2>&1
@@ -190,6 +202,8 @@ fi
 echo "--[ Nuke and re-create the databases: $databases ]-------"
 sleep 10
 
+echo "mysql --port=$myport --socket=$socket -B -e \"set foreign key_checks=0\""
+
 for database in $databases; do
  echo "mysql --port=$myport --socket=$socket -B -e \"DROP DATABASE IF EXISTS $database\""
  mysql --port=$myport --socket=$socket -B -e "DROP DATABASE IF EXISTS $database"
@@ -243,6 +257,7 @@ for database in $databases; do
 done
 
 
+echo "mysql --port=$myport --socket=$socket -B -e \"set foreign key_checks=1\""
 
 
 echo "Done"
